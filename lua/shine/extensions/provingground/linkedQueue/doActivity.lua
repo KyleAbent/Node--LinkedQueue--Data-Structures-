@@ -1,5 +1,5 @@
 --Kyle Abent -- Data Structures -- linked Queue (Java to Lua) -- better perf, less time
-Script.Load("lua/shine/extensions/teamqueue/linkedQueue/Node.lua")
+Script.Load("lua/shine/extensions/provingground/linkedQueue/Node.lua")
 function Plugin:testQueue()
     
 local node = Server.CreateEntity(queueNode.kMapName) 
