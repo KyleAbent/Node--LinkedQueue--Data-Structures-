@@ -5,4 +5,4 @@ Plugin.Version = "27.0"
 
 
 
-Shine:RegisterExtension("provingground", Plugin )
+Shine:RegisterExtension("teamqueue", Plugin )

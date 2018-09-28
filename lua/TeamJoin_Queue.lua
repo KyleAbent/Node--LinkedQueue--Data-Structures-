@@ -26,6 +26,24 @@ function TeamJoin:getMaxTeamSize()
 end
 
 
+function TeamJoin:marineQueueEmpty()
+  -- shine
+end
+
+function TeamJoin:alienQueueEmpty()
+  -- shine
+end
+
+
+function TeamJoin:dequeueMarine()
+  -- shine
+end
+
+function TeamJoin:dequeueAlien()
+  -- shine
+end
+
+
 function TeamJoin:setMaxTeamSize(int)
    self.maxTeamSize = int
 end
@@ -35,17 +53,17 @@ local origU = TeamJoin.OnUpdate--if I overwrite this with shine then i can hook 
   function TeamJoin:OnUpdate()
   
      origU(self)                                                              --change 12 to plugin teamsize
-        if self.teamNumber == 1 and not self.teamIsFull and self.playerCount < self.maxTeamSize and GetMarineQueue() ~= nil then
+        if self.teamNumber == 1 and not self.teamIsFull and self.playerCount < self.maxTeamSize then
           -- Print("Not null marineteam")
-           if not GetMarineQueue():isEmpty() then
+           if  self:marineQueueEmpty() == false then
             -- Print("Umm 1")
-               GetMarineQueue():dequeue()
+               self:dequeueMarine()
            end
-        elseif self.teamNumber == 2 and not self.teamIsFull and self.playerCount < self.maxTeamSize and GetAlienQueue() ~= nil then
+        elseif self.teamNumber == 2 and not self.teamIsFull and self.playerCount < self.maxTeamSize then
           -- Print("Not null alienteam")
-           if not GetAlienQueue():isEmpty() then
+           if self:alienQueueEmpty()== false then
            -- Print("Umm 2")
-               GetAlienQueue():dequeue()
+               self:dequeueAlien()
            end
         end
   end
