@@ -5,7 +5,7 @@
 local networkVars = 
 
 {
-  maxTeamSize = "integer", --for directing. I dont wanna mess with vanilla target. eh?
+  maxTeamSize = "private integer", --for directing. I dont wanna mess with vanilla target. eh?
 } 
 
 
@@ -19,12 +19,18 @@ end
 
 
 
+
+
+
+
+
+
 if Server then
 
-function TeamJoin:getMaxTeamSize()
-  return self.maxTeamSize
-end
 
+function TeamJoin:setMaxTeamSize(int)
+   self.maxTeamSize = int
+end
 
 function TeamJoin:marineQueueEmpty()
   -- shine
@@ -44,25 +50,23 @@ function TeamJoin:dequeueAlien()
 end
 
 
-function TeamJoin:setMaxTeamSize(int)
-   self.maxTeamSize = int
+function TeamJoin:getMaxTeamSize()
+  return self.maxTeamSize
 end
 
 local origU = TeamJoin.OnUpdate--if I overwrite this with shine then i can hook the 12 to a convar unless i write networkvar here
 
   function TeamJoin:OnUpdate()
-  
+
      origU(self)                                                              --change 12 to plugin teamsize
-        if self.teamNumber == 1 and not self.teamIsFull and self.playerCount < self.maxTeamSize then
-          -- Print("Not null marineteam")
+        if self.teamNumber == 1 and self.playerCount < self:getMaxTeamSize() then
            if  self:marineQueueEmpty() == false then
             -- Print("Umm 1")
                self:dequeueMarine()
            end
-        elseif self.teamNumber == 2 and not self.teamIsFull and self.playerCount < self.maxTeamSize then
-          -- Print("Not null alienteam")
+        elseif self.teamNumber == 2  and self.playerCount < self:getMaxTeamSize() then
            if self:alienQueueEmpty()== false then
-           -- Print("Umm 2")
+          --  Print("Umm 2")
                self:dequeueAlien()
            end
         end

@@ -1,8 +1,14 @@
 /*
   Kyle Abent
   Alright, the node , linked was fun. However unnecessary. Why am I trying to avoid loops with only 6 count? Such need is only useful with large data quantity. 
+  GameState -- For every reset, reset the queue ?
 */
 
+function Plugin:SetGameState( Gamerules, State, OldState )
+     if State == kGameState.Team1Won or State == kGameState.Team2Won or State == kGameState.Draw then
+        self:initqueue()
+     end
+end
 function Plugin:initqueue()
 	self.marineQueue = {} 
     self.alienQueue = {}
@@ -11,10 +17,10 @@ function Plugin:initqueue()
     --Improvement would be to write for one, and adjust for two. I'm writing for two, and it's confusing.
 end
 function Plugin:alienLeaveQueue(player)
-       Print("1")
+--       Print("1")
       local i = self:getIsAlienQueue(player)
       if i then
-           Print("2 " .. i)
+          -- Print("2 " .. i)
             self.alienQueue[i] = nil
             self:adjustHigherPriorityAlien() 
             Print("Player Removed from Alien Queue")
@@ -25,10 +31,10 @@ end
 
 
 function Plugin:marineLeaveQueue(player)
-       Print("1")
+     --  Print("1")
       local i = self:getIsMarineQueue(player)
       if i then
-          Print("2 " .. i)
+        --  Print("2 " .. i)
             self.alienQueue[i] = nil 
             self:adjustHigherPriorityMarine() 
             Print("Player Removed from Marine Queue")
@@ -80,9 +86,13 @@ function Plugin:alienPrint()
       end
        Print("Alien Back")
 end
+
+/*
+
 function Plugin:ClientDisconnect(Client)
        --if in queue, adjust.
 end
+*/
 
 
 function Plugin:alienEnqueue(player)--only if gamestarted
@@ -118,19 +128,28 @@ end
 
 function Plugin:JoinTeam(gamerules, player, newteam, force, ShineForce)
 
+
     local AlienCount = gamerules:GetTeam2():GetNumPlayers()
     local MarineCount = gamerules:GetTeam1():GetNumPlayers()
-    if newteam == 2 then 
-                if self.Config.kTeamQueueEnabled and ( AlienCount >= self.Config.kTeamCapSize ) then --or MarineCount < AlienCount ) then
-                   Shine:NotifyDualColour( player, 0, 255, 0, "[Proving Ground]", 255, 255, 255, "M > Proving Ground > TeamQueue > Join Queue" )
+
+    if newteam == 1 then
+                  if  MarineCount >= self.Config.kTeamCapSize  then 
+                  Shine:NotifyDualColour( player, 0, 255, 0, "[Proving Ground]", 255, 255, 255, "Marine Team Capped At " .. self.Config.kTeamCapSize )
                     return false
-                end
-    elseif newteam == 1 then
-                  if self.Config.kTeamQueueEnabled and ( MarineCount >= self.Config.kTeamCapSize ) then -- or MarineCount > AlienCount  ) then
-                     Shine:NotifyDualColour( player, 0, 255, 0, "[Proving Ground]", 255, 255, 255, "M > Proving Ground > TeamQueue > Join Queue" )
-                    return false
+                  elseif MarineCount < AlienCount then
+                  self:alienLeaveQueue(player)
+                  self:marineLeaveQueue(player)
                   end
+    elseif newteam == 2 then 
+                if AlienCount >= self.Config.kTeamCapSize  then
+                Shine:NotifyDualColour( player, 0, 255, 0, "[Proving Ground]", 255, 255, 255, "Alien Team Capped At " .. self.Config.kTeamCapSize )
+                    return false
+                  elseif MarineCount < AlienCount then
+                  self:alienLeaveQueue(player)
+                  self:marineLeaveQueue(player)
+                end
     end
+    
 end
 
 
@@ -159,10 +178,10 @@ function Plugin:dodequeueMarine()
           local Gamerules = GetGamerules()
             local player =  self.marineQueue[1].id
              if player then
-            Shared.ConsoleCommand( string.format("sh_setteam %s 2",player )) 
+            Shared.ConsoleCommand( string.format("sh_setteam %s 1",player )) 
             Shared.ConsoleCommand( string.format("sh_pm %s You've been de-queue-d. ",player )) 
              end 
-             self.marineQueue[1] = nil--{}  
+             self.marineQueue[1] = nil  
              self:adjustHigherPriorityMarine()
 end
 
@@ -176,7 +195,7 @@ function Plugin:dodequeueAlien()
              Shared.ConsoleCommand( string.format("sh_setteam %s 2",player )) 
               Shared.ConsoleCommand( string.format("sh_pm %s You've been de-queue-d. ",player )) 
              end
-             self.alienQueue[1] = nil --{}  
+             self.alienQueue[1] = nil
              self:adjustHigherPriorityAlien() 
 end
  --Kyle Abent

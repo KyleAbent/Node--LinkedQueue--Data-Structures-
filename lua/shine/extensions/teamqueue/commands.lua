@@ -33,8 +33,17 @@ local function JoinQueue(Client, Number)
      
    elseif Number == 3 then
        Shine:NotifyDualColour( Player, 0, 255, 0, "[Proving Ground]", 255, 255, 255, "Attempting to join both team queue"   )
-       self:marineEnqueue(Player)
-       self:alienEnqueue(Player)
+         if   GetGamerules():GetTeam1():GetNumPlayers() >= self.Config.kTeamCapSize then
+           self:marineEnqueue(Player)
+        else
+           Shine:NotifyDualColour( Player, 0, 255, 0, "[Proving Ground]", 255, 255, 255, "Team Size must be " .. self.Config.kTeamCapSize  )
+        end
+        
+              if   GetGamerules():GetTeam2():GetNumPlayers() >= self.Config.kTeamCapSize then
+             self:alienEnqueue(Player)
+             else
+             Shine:NotifyDualColour( Player, 0, 255, 0, "[Proving Ground]", 255, 255, 255, "Team Size must be " .. self.Config.kTeamCapSize  )
+             end
    end
    
 end
@@ -47,8 +56,9 @@ end
     
 local function LeaveQueue(Client)
    local Player = Client:GetControllingPlayer()
-   self:alienLeaveQueue(Player)
-   self:marineLeaveQueue(Player)
+        self:alienLeaveQueue(Player)
+        self:marineLeaveQueue(Player)
+
 end
 
 

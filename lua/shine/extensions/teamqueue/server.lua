@@ -23,24 +23,6 @@ end
 
 
 
-function Plugin:JoinTeam(gamerules, player, newteam, force, ShineForce)
 
-
-    local AlienCount = gamerules:GetTeam2():GetNumPlayers()
-    local MarineCount = gamerules:GetTeam1():GetNumPlayers()
-
-    if newteam == 1 then
-                  if  MarineCount >= self.Config.kTeamCapSize  then 
-                  Shine:NotifyDualColour( player, 0, 255, 0, "[Proving Ground]", 255, 255, 255, "Marine Team Capped At " .. self.Config.kTeamCapSize )
-                    return false
-                  end
-    elseif newteam == 2 then 
-                if AlienCount >= self.Config.kTeamCapSize  then
-                Shine:NotifyDualColour( player, 0, 255, 0, "[Proving Ground]", 255, 255, 255, "Alien Team Capped At " .. self.Config.kTeamCapSize )
-                    return false
-                end
-    end
-    
-end
 
 
