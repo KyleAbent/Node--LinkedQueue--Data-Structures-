@@ -158,24 +158,15 @@ end
 
 
 
-Shine.Hook.SetupClassHook( "TeamJoin", "alienQueueEmpty", "isalienQueueEmpty", "Replace" )
-
 
 function Plugin:isalienQueueEmpty(player) 
          return #self.alienQueue == 0
 end
 
 
-Shine.Hook.SetupClassHook( "TeamJoin", "marineQueueEmpty", "ismarineQueueEmpty", "Replace" )
-
-
 function Plugin:ismarineQueueEmpty(player) 
          return #self.marineQueue == 0
 end
-
-
-
-Shine.Hook.SetupClassHook( "TeamJoin", "dequeueMarine", "dodequeueMarine", "Replace" )
 
 
 function Plugin:dodequeueMarine() 
@@ -184,13 +175,12 @@ function Plugin:dodequeueMarine()
              if player then
             Shared.ConsoleCommand( string.format("sh_setteam %s 1",player )) 
             Shared.ConsoleCommand( string.format("sh_pm %s You've been de-queue-d. ",player )) 
+            self:alienLeaveQueue(player)
+             self:marineLeaveQueue(player)
              end 
             -- self.marineQueue[1] = nil  
              self:adjustHigherPriorityMarine()
 end
-
-Shine.Hook.SetupClassHook( "TeamJoin", "dequeueAlien", "dodequeueAlien", "Replace" )
-
 
 function Plugin:dodequeueAlien()
  Print("dodequeueAlien")
@@ -198,6 +188,8 @@ function Plugin:dodequeueAlien()
              if player then
              Shared.ConsoleCommand( string.format("sh_setteam %s 2",player )) 
               Shared.ConsoleCommand( string.format("sh_pm %s You've been de-queue-d. ",player ) ) 
+              self:alienLeaveQueue(player)
+             self:marineLeaveQueue(player)
              end
             -- self.alienQueue[1] = nil
              self:adjustHigherPriorityAlien()
@@ -244,6 +236,24 @@ function Plugin:adjustHigherPriorityMarine()
         
    end
    
+end
 
+
+Shine.Hook.SetupClassHook( "NS2Gamerules", "OnUpdate", "doOnUpdate", "PassivePost" )
+
+function Plugin:doOnUpdate(timePassed) 
+
+        local team1PlayerCount = GetGamerules():GetTeam(kTeam1Index):GetNumPlayers()
+        local team2PlayerCount = GetGamerules():GetTeam(kTeam2Index):GetNumPlayers()
+        
+        if team1PlayerCount < self.Config.kTeamCapSize and not self:ismarineQueueEmpty() then
+           self:dodequeueMarine()
+           Print("2")
+        end
+        if team2PlayerCount < self.Config.kTeamCapSize and not self:isalienQueueEmpty() then
+            Print("3")
+            self:dodequeueAlien()
+        end
+        
 
 end
