@@ -75,6 +75,7 @@ function Plugin:marinePrint()
             end
       end
        Print("Marine Back")
+       Print("Marine Size is %s", #self.marineQueue)
 end
 function Plugin:alienPrint()
        Print("Alien Front")
@@ -85,14 +86,17 @@ function Plugin:alienPrint()
             end
       end
        Print("Alien Back")
+       Print("Alien Size is %s", #self.alienQueue)
 end
 
-/*
+
 
 function Plugin:ClientDisconnect(Client)
-       --if in queue, adjust.
+       
+                  self:alienLeaveQueue(Client:GetControllingPlayer())
+                  self:marineLeaveQueue(Client:GetControllingPlayer())
 end
-*/
+
 
 
 function Plugin:alienEnqueue(player)--only if gamestarted
@@ -175,13 +179,13 @@ Shine.Hook.SetupClassHook( "TeamJoin", "dequeueMarine", "dodequeueMarine", "Repl
 
 
 function Plugin:dodequeueMarine() 
-          local Gamerules = GetGamerules()
-            local player =  self.marineQueue[1].id
+    Print("dodequeueMarine")
+            local player =  self.marineQueue[1] and self.marineQueue[1].id
              if player then
             Shared.ConsoleCommand( string.format("sh_setteam %s 1",player )) 
             Shared.ConsoleCommand( string.format("sh_pm %s You've been de-queue-d. ",player )) 
              end 
-             self.marineQueue[1] = nil  
+            -- self.marineQueue[1] = nil  
              self:adjustHigherPriorityMarine()
 end
 
@@ -189,33 +193,35 @@ Shine.Hook.SetupClassHook( "TeamJoin", "dequeueAlien", "dodequeueAlien", "Replac
 
 
 function Plugin:dodequeueAlien()
-          local Gamerules = GetGamerules()
-            local player = self.alienQueue[1].id
+ Print("dodequeueAlien")
+            local player = self.alienQueue[1] and self.alienQueue[1].id
              if player then
              Shared.ConsoleCommand( string.format("sh_setteam %s 2",player )) 
-              Shared.ConsoleCommand( string.format("sh_pm %s You've been de-queue-d. ",player )) 
+              Shared.ConsoleCommand( string.format("sh_pm %s You've been de-queue-d. ",player ) ) 
              end
-             self.alienQueue[1] = nil
-             self:adjustHigherPriorityAlien() 
+            -- self.alienQueue[1] = nil
+             self:adjustHigherPriorityAlien()
+
 end
  --Kyle Abent
 function Plugin:adjustHigherPriorityAlien()
    for i = 1, #self.alienQueue do
         local current = self.alienQueue[i]
         local next = self.alienQueue[i+1]
-            
-        
+
         if next then
-           current = next
+           self.alienQueue[i] = self.alienQueue[i+1]
+           self.alienQueue[i+1] = nil
             local player = current.id
              if player then
                    Shared.ConsoleCommand( string.format("sh_pm %s Your new priority for Alien Queue is %s ", player, i    ) ) 
              end 
+        else
+          self.alienQueue[i] = nil
         end
         
    end
    
-   return count
 
 end
 
@@ -226,15 +232,18 @@ function Plugin:adjustHigherPriorityMarine()
               
         
         if next then
-           current = next
+           self.marineQueue[i] = self.marineQueue[i+1]
+           self.marineQueue[i+1] = nil
             local player =  current.id
              if player then
                    Shared.ConsoleCommand( string.format("sh_pm %s Your new priority for Marine Queue is %s", player, i  ) ) 
              end 
+        else
+          self.marineQueue[i] = nil
         end
         
    end
    
-   return count
+
 
 end
